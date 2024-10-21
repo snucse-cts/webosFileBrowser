@@ -1,0 +1,9 @@
+{
+  "id": "io.webosfilebrowser.service",
+  "description": "HelloWorld Service",
+  "services": [
+    {
+      "name": "io.webosfilebrowser.service"
+    }
+  ]
+}
