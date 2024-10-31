@@ -1,5 +1,6 @@
 /* global ENACT_PACK_ISOMORPHIC */
 import './tailwind.css';
+import "@cubone/react-file-manager/dist/style.css";
 import {createRoot, hydrateRoot} from 'react-dom/client';
 
 import App from './App';
