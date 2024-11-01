@@ -186,3 +186,41 @@ service.register("/do/re/me", function(message) {
         {me: "a name I call myself"}
     ]});
 });
+
+var toastApi = 'luna://com.domain.app.service/showToast';
+var toastParams = '{"message":"This is webOS OSE"}';
+
+function toast_callback(msg){
+    console.log("toast_callback : " + msg);
+    var arg = JSON.parse(msg);
+    if (arg.returnValue) {
+        document.getElementById("result").innerHTML = "Toast Request - Success";
+        console.log("[APP_NAME: example web app] SHOWTOAST_SUCCESS returnValue : " + arg.returnValue);
+    }
+    else {
+        console.error("[APP_NAME: example web app] SHOWTOAST_FAILED errorText : " + arg.Response.errorText);
+    }
+}
+
+document.getElementById("show_toast").onclick = function() {
+    bridge.onservicecallback = toast_callback;
+    bridge.call(toastApi, toastParams);
+}
+
+service.register("showToast", function(msg){
+    console.log(logHeader,"SERVICE_METHOD_CALLED:/showToast");
+    service.call("luna://com.webos.notification/createToast", {"message" : msg.payload.message }, function(m2) {
+        console.log(logHeader, "SERVICE_METHOD_CALLED:com.webos.notification/createToast");
+        msg.respond({
+            returnValue: true,
+            Response: m2.payload
+        });
+    });
+});
+
+// service.register("listFiles", function(message) {
+//     console.log(logHeader, "SERVICE_METHOD_CALLED:/listFiles");
+//     service.call("luna://io.webosfilebrowser.service/listFiles", [], function(reply) {
+//         message.respond({});
+//     });
+// });
