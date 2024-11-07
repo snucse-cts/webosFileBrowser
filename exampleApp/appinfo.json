@@ -8,6 +8,7 @@
   "icon": "icon.png",
   "requiredPermissions": [
     "time.query",
-    "activity.operation"
+    "activity.operation",
+    "TODO: add hacg here, that is used in this project(including app, and the service that is used by this app too)"
   ]
 }

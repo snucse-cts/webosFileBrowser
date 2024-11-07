@@ -6,6 +6,8 @@
 
 // helloclient.js
 // Subscribe & cancel subscription to helloService's heartbeat method
+// https://www.webosose.org/docs/reference/webos-service-library/webos-service-library-api-reference/
+// this library is used by only service
 const Service = require('webos-service');
 
 const service = new Service("com.example.helloclient"); // Register com.example.helloworld

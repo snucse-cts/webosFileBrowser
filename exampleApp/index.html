@@ -29,7 +29,9 @@ SPDX-License-Identifier: Apache-2.0
 </style>
 <script type="text/javascript">
 window.onload = function() {
-    var bridge = new WebOSServiceBridge();
+    // https://www.webosose.org/docs/reference/webosservicebridge-api/webosservicebridge-api-reference/
+    // this bridge is used by only app
+    var bridge = new WebOSServiceBridge(); // no need to import this.
     /*
      *  getTimeApi calls gettime of systemservice, a module in the platform.
      */
