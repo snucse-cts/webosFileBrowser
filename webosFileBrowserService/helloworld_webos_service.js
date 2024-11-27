@@ -217,10 +217,3 @@ service.register("showToast", function(msg){
         });
     });
 });
-
-// service.register("listFiles", function(message) {
-//     console.log(logHeader, "SERVICE_METHOD_CALLED:/listFiles");
-//     service.call("luna://io.webosfilebrowser.service/listFiles", [], function(reply) {
-//         message.respond({});
-//     });
-// });
