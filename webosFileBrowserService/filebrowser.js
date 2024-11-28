@@ -17,7 +17,25 @@ const logHeader = "[" + pkgInfo.name + "]";
 
 service.register("listFiles", function(message) {
     console.log(logHeader, "SERVICE_METHOD_CALLED:/listFiles");
-    // TODO
+    try {
+        fs.readdir(message.payload.path, "utf8", (err, files) => {
+            if (err) throw err;
+            message.respond({
+                success: true,
+                files: files
+            })
+        });
+    }
+    catch (err) {
+        console.log(err);
+        message.respond({
+            success: false,
+            error: {
+                code: "UNKNOWN_ERROR",
+                message: err.name + ": " + err.message
+            }
+        });
+    }
 });
 
 service.register("readFile", function(message) {
@@ -32,6 +50,7 @@ service.register("readFile", function(message) {
         });
     }
     catch (err) {
+        console.log(err);
         message.respond({
             success: false,
             error: {
@@ -53,6 +72,7 @@ service.register("writeFile", function(message) {
         });
     }
     catch (err) {
+        console.log(err);
         message.respond({
             success: false,
             error: {
@@ -74,6 +94,7 @@ service.register("deleteFile", function(message) {
         });
     }
     catch (err) {
+        console.log(err);
         message.respond({
             success: false,
             error: {
@@ -95,6 +116,7 @@ service.register("createDirectory", function(message) {
         })
     }
     catch (err) {
+        console.log(err);
         message.respond({
             success: false,
             error: {

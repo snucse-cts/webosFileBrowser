@@ -1,8 +1,8 @@
 {
   "name": "io.webosfilebrowser.service",
   "version": "1.0.0",
-  "description": "Helloworld service",
-  "main": "helloworld_webos_service.js",
+  "description": "File Browser service",
+  "main": "filebrowser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,6 +1,6 @@
 {
   "id": "io.webosfilebrowser.service",
-  "description": "HelloWorld Service",
+  "description": "File Browser Service",
   "services": [
     {
       "name": "io.webosfilebrowser.service"
