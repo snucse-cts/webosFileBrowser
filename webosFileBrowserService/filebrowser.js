@@ -11,6 +11,7 @@
 const pkgInfo = require('./package.json');
 const Service = require('webos-service');
 const fs = require('fs');
+const path = require('path');
 
 const service = new Service(pkgInfo.name); // Create service by service name on package.json
 const logHeader = "[" + pkgInfo.name + "]";
@@ -22,8 +23,24 @@ service.register("listFiles", function(message) {
             if (err) throw err;
             message.respond({
                 success: true,
-                files: files
-            })
+                files: files.map((file) => {
+                    const filepath = path.join(message.payload.path, file);
+                    const stats = fs.statSync(filepath)
+                    if (stats.isDirectory()) {
+                        return {
+                            name: file,
+                            type: "directory"
+                        };
+                    }
+                    else {
+                        return {
+                            name: file,
+                            type: "file",
+                            size: stats.size
+                        };
+                    }
+                })
+            });
         });
     }
     catch (err) {
@@ -86,7 +103,29 @@ service.register("writeFile", function(message) {
 service.register("deleteFile", function(message) {
     console.log(logHeader, "SERVICE_METHOD_CALLED:/deleteFile");
     try {
-        fs.unlink(message.payload.path, (err) => {
+        fs.rm(message.payload.path, (err) => {
+            if(err) throw err;
+            message.respond({
+                success: true
+            });
+        });
+    }
+    catch (err) {
+        console.log(err);
+        message.respond({
+            success: false,
+            error: {
+                code: "UNKNOWN_ERROR",
+                message: err.name + ": " + err.message
+            }
+        });
+    }
+});
+
+service.register("renameFile", function(message) {
+    console.log(logHeader, "SERVICE_METHOD_CALLED:/renameFile");
+    try {
+        fs.rename(message.payload.oldpath, message.payload.newpath, (err) => {
             if(err) throw err;
             message.respond({
                 success: true

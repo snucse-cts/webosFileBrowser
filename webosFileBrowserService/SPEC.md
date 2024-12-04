@@ -82,7 +82,24 @@ The File Browser Service API allows the web application to interact with the fil
       }
       ```
 
-5. **Create Directory**
+5. **Rename File**
+    - **Description**: Rename a specified file or directory.
+    - **Method**: `luna://io.webosfilebrowser.service/renameFile`
+    - **Input**:
+      ```json
+      {
+        "oldpath": "/path/to/old/file_or_directory",
+        "newpath": "/path/to/new/file_or_directory"
+      }
+      ```
+    - **Output**:
+      ```json
+      {
+        "success": true
+      }
+      ```
+
+6. **Create Directory**
     - **Description**: Create a new directory.
     - **Method**: `luna://io.webosfilebrowser.service/createDirectory`
     - **Input**:
