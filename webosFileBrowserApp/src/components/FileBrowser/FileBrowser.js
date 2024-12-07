@@ -135,6 +135,7 @@ const FileBrowser = () => {
     writeFile,
     deleteFile,
     createDirectory,
+    renameFile,
   } = useFileBrowser();
 
   const [files, setFiles] = useState([]);
@@ -303,13 +304,14 @@ const FileBrowser = () => {
   const handleRenameSubmit = async () => {
     setRenameError("");
 
+    // Validation
     if (!newName.trim()) {
       setRenameError("Name cannot be empty");
       return;
     }
 
     if (newName === renameItem.name) {
-      setRenameError("New name is same as current name");
+      setRenameError("New name is the same as the current name");
       return;
     }
 
@@ -324,41 +326,15 @@ const FileBrowser = () => {
       }`;
       const newPath = `${currentPath === "/" ? "" : currentPath}/${newName}`;
 
-      console.log("Sending API request with paths:", { oldPath, newPath });
+      await renameFile(oldPath, newPath);
 
-      // Make API call to renameFile
-      const response = await fetch(
-        "luna://io.webosfilebrowser.service/renameFile",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ oldpath: oldPath, newpath: newPath }),
-        }
-      );
-
-      console.log("Sending API request with payload:", {
-        oldpath: oldPath,
-        newpath: newPath,
-      });
-
-      console.log("Response status:", response.status);
-
-      const result = await response.json();
-      console.log("API response:", result);
-
-      if (result.success) {
-        // Close modal and refresh files on success
-        setShowRenameModal(false);
-        setRenameItem(null);
-        setNewName("");
-        loadFiles(); // Reload file list
-      } else {
-        // Show backend error message
-        setRenameError(result.error?.message || "Failed to rename item");
-      }
+      setShowRenameModal(false);
+      setRenameItem(null);
+      setNewName("");
+      setRenameError("");
+      loadFiles();
     } catch (err) {
-      console.error("Rename error:", err);
-      setRenameError("An unexpected error occurred while renaming");
+      setError(err.error?.message || "Failed to rename item");
     }
   };
 
