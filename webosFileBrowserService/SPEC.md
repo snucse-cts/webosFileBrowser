@@ -11,7 +11,8 @@ The File Browser Service API allows the web application to interact with the fil
     - **Input**:
       ```json
       {
-        "path": "/path/to/directory"
+        "path": "/path/to/directory",
+        "token": "..."
       }
       ```
     - **Output**:
@@ -38,7 +39,8 @@ The File Browser Service API allows the web application to interact with the fil
     - **Input**:
       ```json
       {
-        "path": "/path/to/file.txt"
+        "path": "/path/to/file.txt",
+        "token": "..."
       }
       ```
     - **Output**:
@@ -56,7 +58,8 @@ The File Browser Service API allows the web application to interact with the fil
       ```json
       {
         "path": "/path/to/file.txt",
-        "content": "new file content"
+        "content": "new file content",
+        "token": "..."
       }
       ```
     - **Output**:
@@ -72,7 +75,8 @@ The File Browser Service API allows the web application to interact with the fil
     - **Input**:
       ```json
       {
-        "path": "/path/to/file_or_directory"
+        "path": "/path/to/file_or_directory",
+        "token": "..."
       }
       ```
     - **Output**:
@@ -89,7 +93,8 @@ The File Browser Service API allows the web application to interact with the fil
       ```json
       {
         "oldpath": "/path/to/old/file_or_directory",
-        "newpath": "/path/to/new/file_or_directory"
+        "newpath": "/path/to/new/file_or_directory",
+        "token": "..."
       }
       ```
     - **Output**:
@@ -105,7 +110,8 @@ The File Browser Service API allows the web application to interact with the fil
     - **Input**:
       ```json
       {
-        "path": "/path/to/new_directory"
+        "path": "/path/to/new_directory",
+        "token": "..."
       }
       ```
     - **Output**:
@@ -114,6 +120,25 @@ The File Browser Service API allows the web application to interact with the fil
         "success": true
       }
       ```
+
+7. **User Login**
+    - **Description**: Handle user login.
+    - **Method**: `luna://io.webosfilebrowser.service/login`
+    - **Input**:
+        ```json
+        {
+          "username": "user@example.com",
+          "password": "user_password"
+        }
+        ```
+    - **Output**:
+        ```json
+        {
+          "success": true,
+          "token": "aBcD...",
+          "expiresIn": 3600
+        }
+        ```
 
 #### Error Handling
 - **Error Response**:
