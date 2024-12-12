@@ -98,6 +98,9 @@ const createMockDirectory = (path) => {
 
 export function FileBrowserProvider({ children, testMode = false }) {
   const serviceUri = "luna://io.webosfilebrowser.service";
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
   const [currentPath, setCurrentPath] = useState("/");
   const [pathHistory, setPathHistory] = useState(["/"]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -240,12 +243,75 @@ export function FileBrowserProvider({ children, testMode = false }) {
     [testMode]
   );
 
+  const login = useCallback(
+    (username, password) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const matchedUser = users.find(
+            (user) => user.username === username && user.password === password
+          );
+          if (matchedUser) {
+            setIsAuthenticated(true);
+            setUser(matchedUser);
+            resolve({ success: true, user: matchedUser });
+          } else {
+            reject({ success: false, message: "Invalid credentials" });
+          }
+        }, 500);
+      });
+    },
+    [users]
+  );
+
+  const logout = useCallback(() => {
+    setIsAuthenticated(false);
+    setUser(null);
+  }, []);
+
+  const signup = useCallback(
+    (username, password) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (
+            users.some((existingUser) => existingUser.username === username)
+          ) {
+            reject({ success: false, message: "Username already exists" });
+          } else {
+            const newUser = { username, password };
+            setUsers((prevUsers) => {
+              const updatedUsers = [...prevUsers, newUser];
+              console.log("Updated users list:", updatedUsers); // Debugging log
+              return updatedUsers;
+            });
+            resolve({ success: true, user: newUser });
+          }
+        }, 500);
+      });
+    },
+    [users]
+  );
+
   const renameFile = useCallback(
     (oldpath, newpath) => {
       if (!oldpath || !newpath) {
+        console.error("Invalid paths provided for rename operation:", {
+          oldpath,
+          newpath,
+        });
         return Promise.reject(new Error("Invalid paths for rename operation"));
       }
-      return callService("renameFile", { oldpath, newpath });
+
+      console.log("Calling renameFile with paths:", { oldpath, newpath });
+
+      return callService("renameFile", { oldpath, newpath })
+        .then((response) => {
+          console.log("RenameFile succeeded:", response);
+          return response;
+        })
+        .catch((err) => {
+          console.error("RenameFile failed:", err);
+          throw err;
+        });
     },
     [callService]
   );
@@ -328,6 +394,11 @@ export function FileBrowserProvider({ children, testMode = false }) {
     deleteFile,
     createDirectory,
     renameFile,
+    login,
+    logout,
+    signup,
+    isAuthenticated,
+    users,
     isTestMode: testMode,
   };
 

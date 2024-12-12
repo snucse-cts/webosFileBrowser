@@ -136,6 +136,11 @@ const FileBrowser = () => {
     deleteFile,
     createDirectory,
     renameFile,
+    login,
+    logout,
+    signup,
+    isAuthenticated,
+    users,
   } = useFileBrowser();
 
   const [files, setFiles] = useState([]);
@@ -157,6 +162,41 @@ const FileBrowser = () => {
   const [renameError, setRenameError] = useState("");
   const [createDirError, setCreateDirError] = useState("");
   const [createFileError, setCreateFileError] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [signUpUsername, setSignUpUsername] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpError, setSignUpError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      setAuthError("");
+      await login(username, password);
+      setUsername("");
+      setPassword("");
+    } catch (err) {
+      setAuthError(err.message || "Failed to log in");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  const handleSignUp = async () => {
+    try {
+      setSignUpError("");
+      await signup(signUpUsername, signUpPassword);
+      setSignUpUsername("");
+      setSignUpPassword("");
+      setShowSignUp(false); // Switch back to login after successful sign-up
+      setError("Sign-up successful! Please log in.");
+    } catch (err) {
+      setSignUpError(err.message || "Failed to sign up");
+    }
+  };
 
   const loadFiles = useCallback(async () => {
     try {
@@ -164,6 +204,7 @@ const FileBrowser = () => {
       setError(null);
       const result = await listFiles();
       setFiles(sortFiles(result.files));
+      console.log("Files after reload:", result.files); // Debugging log
     } catch (err) {
       setError(err.error?.message || "Failed to load files");
     } finally {
@@ -295,16 +336,22 @@ const FileBrowser = () => {
   };
 
   const handleRename = (name, type) => {
+    console.log("Rename modal opened for:", { name, type }); // Debug log
+
     setRenameItem({ name, type });
     setNewName(name);
     setRenameError("");
     setShowRenameModal(true);
+
+    console.log("Rename modal state updated:", {
+      renameItem: { name, type },
+      newName: name,
+    });
   };
 
   const handleRenameSubmit = async () => {
     setRenameError("");
 
-    // Validation
     if (!newName.trim()) {
       setRenameError("Name cannot be empty");
       return;
@@ -325,23 +372,122 @@ const FileBrowser = () => {
         renameItem.name
       }`;
       const newPath = `${currentPath === "/" ? "" : currentPath}/${newName}`;
-
-      await renameFile(oldPath, newPath);
+      console.log("Submitting rename request:", { oldPath, newPath });
 
       setShowRenameModal(false);
       setRenameItem(null);
-      setNewName("");
+      setNewName(newName);
       setRenameError("");
-      loadFiles();
+
+      await renameFile(oldPath, newPath);
+      console.log("Rename successful! Reloading files...");
+      await loadFiles(); // Reload file list after renaming
     } catch (err) {
-      setError(err.error?.message || "Failed to rename item");
+      console.error("Rename failed:", err);
+      setRenameError(err.error?.message || "Failed to rename item");
     }
   };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 relative">
-      {loading && <Spinner />}
+      {!isAuthenticated ? (
+        <div className="login-form">
+          {showSignUp ? (
+            <div className="signup-form">
+              <h2 className="text-lg font-bold mb-4">Sign Up</h2>
+              <input
+                type="text"
+                value={signUpUsername}
+                onChange={(e) => setSignUpUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full p-2 border rounded mb-2"
+              />
+              <input
+                type="password"
+                value={signUpPassword}
+                onChange={(e) => setSignUpPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full p-2 border rounded mb-2"
+              />
+              {signUpError && (
+                <div className="text-red-500 mb-2">{signUpError}</div>
+              )}
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setShowSignUp(false)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  Back to Login
+                </button>
+                <button
+                  onClick={handleSignUp}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-lg font-bold mb-4">Login</h2>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full p-2 border rounded mb-2"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full p-2 border rounded mb-2"
+              />
+              {authError && (
+                <div className="text-red-500 mb-2">{authError}</div>
+              )}
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setShowSignUp(true)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  Sign Up
+                </button>
+                <button
+                  onClick={handleLogin}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Login
+                </button>
+              </div>
+            </>
+          )}
+            <div className="mt-4">
+                <h3 className="text-lg font-bold">Users</h3>
+                <ul>
+                {users.map((user) => (
+                    <li key={user.username}>{user.username}</li>
+                ))}
+                </ul>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold">Welcome to File Browser</h2>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </div>
+          {/* Other authenticated content */}
+        </>
+      )}
 
+      {loading && <Spinner />}
       <div className="flex items-center mb-4 space-x-2">
         <button
           onClick={navigateBack}
