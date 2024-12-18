@@ -121,7 +121,24 @@ The File Browser Service API allows the web application to interact with the fil
       }
       ```
 
-7. **User Login**
+7. **User Signup**
+    - **Description**: Handle user signup.
+    - **Method**: `luna://io.webosfilebrowser.service/signup`
+    - **Input**:
+        ```json
+        {
+          "username": "user@example.com",
+          "password": "user_password"
+        }
+        ```
+    - **Output**:
+        ```json
+        {
+          "success": true
+        }
+        ```
+
+8. **User Login**
     - **Description**: Handle user login.
     - **Method**: `luna://io.webosfilebrowser.service/login`
     - **Input**:
