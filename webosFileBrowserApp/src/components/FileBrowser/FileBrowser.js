@@ -54,7 +54,7 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMo
             >
                 <span className="mr-2">{icon}</span>
                 <span className="flex-grow">{name}</span>
-                {type === 'file' && <span className="text-sm text-gray-500">{size} bytes</span>}
+                {type === 'file' && <span className="text-sm text-gray-500 mr-4">{size} bytes</span>}
             </div>
             <div className="flex space-x-2">
                 <button
@@ -62,7 +62,7 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMo
                         e.stopPropagation();
                         onMove(name, type);
                     }}
-                    className="px-2 py-1 text-green-500 hover:bg-green-50 rounded"
+                    className="px-2 py-1 text-white bg-green-400 hover:bg-green-500 rounded transition-colors duration-200"
                 >
                     Move
                 </button>
@@ -71,7 +71,7 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMo
                         e.stopPropagation();
                         onRename(name, type);
                     }}
-                    className="px-2 py-1 text-blue-500 hover:bg-blue-50 rounded"
+                    className="px-2 py-1 text-white bg-blue-400 hover:bg-blue-500 rounded transition-colors duration-200"
                 >
                     Rename
                 </button>
@@ -80,7 +80,7 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMo
                         e.stopPropagation();
                         onDelete(name, type);
                     }}
-                    className="px-2 py-1 text-red-500 hover:bg-red-50 rounded"
+                    className="px-2 py-1 text-white bg-red-400 hover:bg-red-500 rounded transition-colors duration-200"
                 >
                     Delete
                 </button>
