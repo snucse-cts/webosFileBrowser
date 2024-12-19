@@ -59,46 +59,6 @@ const Spinner = () => (
     </div>
 );
 
-const getDirectoryContents = async (path, listFiles, readFile) => {
-    const result = await listFiles(path);
-    const contents = [];
-
-    for (const item of result.files) {
-        const itemPath = `${path === '/' ? '' : path}/${item.name}`;
-        if (item.type === 'directory') {
-            const subContents = await getDirectoryContents(itemPath, listFiles, readFile);
-            contents.push({
-                type: 'directory',
-                path: itemPath,
-                name: item.name,
-                contents: subContents
-            });
-        } else {
-            const fileContent = await readFile(itemPath);
-            contents.push({
-                type: 'file',
-                path: itemPath,
-                name: item.name,
-                content: fileContent.content
-            });
-        }
-    }
-
-    return contents;
-};
-
-const copyDirectory = async (contents, newBasePath, writeFile, createDirectory) => {
-    for (const item of contents) {
-        const newPath = `${newBasePath === '/' ? '' : newBasePath}/${item.name}`;
-        if (item.type === 'directory') {
-            await createDirectory(newPath);
-            await copyDirectory(item.contents, newPath, writeFile, createDirectory);
-        } else {
-            await writeFile(newPath, item.content);
-        }
-    }
-};
-
 const sortFiles = (files) => {
     return [...files].sort((a, b) => {
         if (a.type !== b.type) {
@@ -121,7 +81,8 @@ const FileBrowser = () => {
         readFile,
         writeFile,
         deleteFile,
-        createDirectory
+        createDirectory,
+        renameFile
     } = useFileBrowser();
 
     const [files, setFiles] = useState([]);
@@ -300,17 +261,9 @@ const FileBrowser = () => {
         try {
             const oldPath = `${currentPath === '/' ? '' : currentPath}/${renameItem.name}`;
             const newPath = `${currentPath === '/' ? '' : currentPath}/${newName}`;
-
-            if (renameItem.type === 'file') {
-                const result = await readFile(oldPath);
-                await writeFile(newPath, result.content);
-            } else {
-                const contents = await getDirectoryContents(oldPath, listFiles, readFile);
-                await createDirectory(newPath);
-                await copyDirectory(contents, newPath, writeFile, createDirectory);
-            }
-
-            await deleteFile(oldPath);
+            
+            await renameFile(oldPath, newPath);
+            
             setShowRenameModal(false);
             setRenameItem(null);
             setNewName('');

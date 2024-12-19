@@ -159,6 +159,74 @@ export function FileBrowserProvider({ children, testMode = false }) {
                                 }
                                 break;
                             }
+                            case 'renameFile': {
+                                const oldParts = parameters.oldpath.split('/').filter(Boolean);
+                                const newParts = parameters.newpath.split('/').filter(Boolean);
+                                
+                                let current = mockFileSystem['/'];
+                                for (const part of oldParts.slice(0, -1)) {
+                                    if (!current.children[part]) return reject({
+                                        success: false,
+                                        error: {
+                                            code: 'FILE_NOT_FOUND',
+                                            message: 'Source path not found'
+                                        }
+                                    });
+                                    current = current.children[part];
+                                }
+                                
+                                const oldName = oldParts[oldParts.length - 1];
+                                const item = current.children[oldName];
+                                if (!item) {
+                                    return reject({
+                                        success: false,
+                                        error: {
+                                            code: 'FILE_NOT_FOUND',
+                                            message: 'Source item not found'
+                                        }
+                                    });
+                                }
+                                current = mockFileSystem['/'];
+                                for (const part of newParts.slice(0, -1)) {
+                                    if (!current.children[part]) {
+                                        return reject({
+                                            success: false,
+                                            error: {
+                                                code: 'INVALID_PATH',
+                                                message: 'Destination path not found'
+                                            }
+                                        });
+                                    }
+                                    current = current.children[part];
+                                }
+
+                                const newName = newParts[newParts.length - 1];
+                                if (current.children[newName]) {
+                                    return reject({
+                                        success: false,
+                                        error: {
+                                            code: 'PERMISSION_DENIED',
+                                            message: 'Destination already exists'
+                                        }
+                                    });
+                                }
+
+                                let source = mockFileSystem['/'];
+                                for (const part of oldParts.slice(0, -1)) {
+                                    source = source.children[part];
+                                }
+
+                                let target = mockFileSystem['/'];
+                                for (const part of newParts.slice(0, -1)) {
+                                    target = target.children[part];
+                                }
+
+                                target.children[newName] = source.children[oldName];
+                                delete source.children[oldName];
+
+                                resolve({ success: true });
+                                break;
+                            }
                             default:
                                 reject({ code: 'UNKNOWN_ERROR', message: 'Method not implemented' });
                         }
@@ -237,6 +305,10 @@ export function FileBrowserProvider({ children, testMode = false }) {
         return callService('createDirectory', { path });
     }, [callService]);
 
+    const renameFile = useCallback((oldPath, newPath) => {
+        return callService('renameFile', { oldpath: oldPath, newpath: newPath });
+    }, [callService]);
+
     const value = {
         currentPath,
         navigateTo,
@@ -250,6 +322,7 @@ export function FileBrowserProvider({ children, testMode = false }) {
         writeFile,
         deleteFile,
         createDirectory,
+        renameFile,
         isTestMode: testMode
     };
 
