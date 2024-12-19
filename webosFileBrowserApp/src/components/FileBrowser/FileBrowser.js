@@ -13,11 +13,41 @@ const Modal = ({ title, children, onClose }) => (
     </div>
 );
 
-const FileItem = ({ name, type, size, onSelect, onDelete, onRename }) => {
+const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop }) => {
     const icon = type === 'directory' ? '📁' : '📄';
     
+    const handleDragStart = (e) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ name, type }));
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e) => {
+        if (type === 'directory') {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+    };
+
+    const handleDrop = (e) => {
+        if (type === 'directory') {
+            e.preventDefault();
+            try {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                onDrop(data, name);
+            } catch (err) {
+                console.error('Invalid drag data');
+            }
+        }
+    };
+    
     return (
-        <div className="flex items-center p-2 hover:bg-gray-100 group">
+        <div 
+            className={`flex items-center p-2 hover:bg-gray-100 group ${type === 'directory' ? 'drop-target' : ''}`}
+            draggable={true}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+        >
             <div
                 className="flex-grow flex items-center cursor-pointer"
                 onClick={() => onSelect(name, type)}
@@ -274,6 +304,53 @@ const FileBrowser = () => {
         }
     };
 
+    const handleDrop = async (sourceItem, targetDirName) => {
+        if (sourceItem.name === targetDirName) return; // Prevent dropping on itself
+
+        const sourcePath = `${currentPath === '/' ? '' : currentPath}/${sourceItem.name}`;
+        const targetPath = `${currentPath === '/' ? '' : currentPath}/${targetDirName}/${sourceItem.name}`;
+
+        try {
+            await renameFile(sourcePath, targetPath);
+            loadFiles();
+        } catch (err) {
+            setError(err.error?.message || 'Failed to move item');
+        }
+    };
+
+    useEffect(() => {
+        const handleDragOver = (e) => {
+            const dropTarget = e.target.closest('.drop-target');
+            if (dropTarget) {
+                e.preventDefault();
+                dropTarget.classList.add('dragover');
+            }
+        };
+
+        const handleDragLeave = (e) => {
+            const dropTarget = e.target.closest('.drop-target');
+            if (dropTarget) {
+                dropTarget.classList.remove('dragover');
+            }
+        };
+
+        const handleDrop = () => {
+            document.querySelectorAll('.drop-target').forEach(target => {
+                target.classList.remove('dragover');
+            });
+        };
+
+        document.addEventListener('dragover', handleDragOver);
+        document.addEventListener('dragleave', handleDragLeave);
+        document.addEventListener('drop', handleDrop);
+
+        return () => {
+            document.removeEventListener('dragover', handleDragOver);
+            document.removeEventListener('dragleave', handleDragLeave);
+            document.removeEventListener('drop', handleDrop);
+        };
+    }, []);
+
     return (
         <div className="w-full max-w-4xl mx-auto p-4 relative">
             {loading && <Spinner />}
@@ -333,6 +410,7 @@ const FileBrowser = () => {
                             onSelect={loading ? undefined : handleSelect}
                             onDelete={loading ? undefined : handleDelete}
                             onRename={loading ? undefined : handleRename}
+                            onDrop={loading ? undefined : handleDrop}
                         />
                     ))
                 )}
@@ -482,6 +560,13 @@ const FileBrowser = () => {
                     </div>
                 </Modal>
             )}
+
+            <style jsx>{`
+                .drop-target.dragover {
+                    background-color: rgba(59, 130, 246, 0.1);
+                    border: 2px dashed #3b82f6;
+                }
+            `}</style>
         </div>
     );
 };
