@@ -112,7 +112,8 @@ const FileBrowser = () => {
         writeFile,
         deleteFile,
         createDirectory,
-        renameFile
+        renameFile,
+        logout
     } = useFileBrowser();
 
     const [files, setFiles] = useState([]);
@@ -380,6 +381,12 @@ const FileBrowser = () => {
                 <div className="flex-grow px-3 py-1 bg-gray-100 rounded">
                     {currentPath}
                 </div>
+                <button
+                    onClick={logout}
+                    className="px-3 py-1.5 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors duration-200"
+                >
+                    Logout
+                </button>
             </div>
 
             <div className="mb-4 space-x-2">

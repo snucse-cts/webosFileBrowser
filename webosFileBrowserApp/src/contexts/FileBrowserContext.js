@@ -18,6 +18,18 @@ const mockFileSystem = {
     }
 };
 
+const mockUsers = {
+    users: {
+        'test@example.com': {
+            password: 'test123',
+            token: 'mock-token-123'
+        }
+    },
+    tokens: {
+        'mock-token-123': 'test@example.com'
+    }
+};
+
 const getMockDirectory = (path) => {
     const parts = path.split('/').filter(part => part !== '');
     let current = mockFileSystem['/'];
@@ -98,6 +110,8 @@ export function FileBrowserProvider({ children, testMode = false }) {
     const [currentPath, setCurrentPath] = useState('/');
     const [pathHistory, setPathHistory] = useState(['/']);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [token, setToken] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const callService = useCallback((method, parameters) => {
         if (testMode) {
@@ -227,6 +241,44 @@ export function FileBrowserProvider({ children, testMode = false }) {
                                 resolve({ success: true });
                                 break;
                             }
+                            case 'signup': {
+                                const { username, password } = parameters;
+                                if (mockUsers.users[username]) {
+                                    reject({
+                                        success: false,
+                                        error: {
+                                            code: 'USER_EXISTS',
+                                            message: 'User already exists'
+                                        }
+                                    });
+                                } else {
+                                    const token = `mock-token-${Date.now()}`;
+                                    mockUsers.users[username] = { password, token };
+                                    mockUsers.tokens[token] = username;
+                                    resolve({ success: true });
+                                }
+                                break;
+                            }
+                            case 'login': {
+                                const { username, password } = parameters;
+                                const user = mockUsers.users[username];
+                                if (!user || user.password !== password) {
+                                    reject({
+                                        success: false,
+                                        error: {
+                                            code: 'INVALID_CREDENTIALS',
+                                            message: 'Invalid email or password'
+                                        }
+                                    });
+                                } else {
+                                    resolve({
+                                        success: true,
+                                        token: user.token,
+                                        expiresIn: 3600
+                                    });
+                                }
+                                break;
+                            }
                             default:
                                 reject({ code: 'UNKNOWN_ERROR', message: 'Method not implemented' });
                         }
@@ -241,7 +293,7 @@ export function FileBrowserProvider({ children, testMode = false }) {
             new LS2Request().send({
                 service: serviceUri,
                 method: method,
-                parameters: parameters,
+                parameters: { ...parameters, token },
                 onSuccess: (res) => {
                     if (res.success) {
                         resolve(res);
@@ -257,7 +309,7 @@ export function FileBrowserProvider({ children, testMode = false }) {
                 }
             });
         });
-    }, [testMode]);
+    }, [testMode, token]);
 
     const navigateTo = useCallback((path) => {
         setCurrentPath(path);
@@ -309,6 +361,28 @@ export function FileBrowserProvider({ children, testMode = false }) {
         return callService('renameFile', { oldpath: oldPath, newpath: newPath });
     }, [callService]);
 
+    const signup = useCallback(async (username, password) => {
+        return callService('signup', { username, password });
+    }, [callService]);
+
+    const login = useCallback(async (username, password) => {
+        try {
+            const response = await callService('login', { username, password });
+            setToken(response.token);
+            setIsAuthenticated(true);
+            return response;
+        } catch (err) {
+            setToken(null);
+            setIsAuthenticated(false);
+            throw err;
+        }
+    }, [callService]);
+
+    const logout = useCallback(() => {
+        setToken(null);
+        setIsAuthenticated(false);
+    }, []);
+
     const value = {
         currentPath,
         navigateTo,
@@ -323,7 +397,11 @@ export function FileBrowserProvider({ children, testMode = false }) {
         deleteFile,
         createDirectory,
         renameFile,
-        isTestMode: testMode
+        isTestMode: testMode,
+        isAuthenticated,
+        login,
+        signup,
+        logout
     };
 
     return (
