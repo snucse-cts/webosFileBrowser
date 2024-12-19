@@ -42,7 +42,7 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMo
     
     return (
         <div 
-            className={`flex items-center p-2 hover:bg-gray-100 group ${type === 'directory' ? 'drop-target' : ''}`}
+            className={`flex items-center p-2 hover:bg-gray-100 ${type === 'directory' ? 'drop-target' : ''}`}
             draggable={true}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
@@ -56,7 +56,7 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMo
                 <span className="flex-grow">{name}</span>
                 {type === 'file' && <span className="text-sm text-gray-500">{size} bytes</span>}
             </div>
-            <div className="opacity-0 group-hover:opacity-100 flex space-x-2">
+            <div className="flex space-x-2">
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
