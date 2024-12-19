@@ -381,6 +381,9 @@ export function FileBrowserProvider({ children, testMode = false }) {
     const logout = useCallback(() => {
         setToken(null);
         setIsAuthenticated(false);
+        setCurrentPath('/');
+        setPathHistory(['/']);
+        setCurrentIndex(0);
     }, []);
 
     const value = {
