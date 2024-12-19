@@ -6,6 +6,7 @@ This is a file browser app for WebOS. It is built with Enact.
 
 ```bash
 cd webosFileBrowserApp
+npm install
 npm run pack
 cd ..
 ares-package webosFileBrowserApp/dist webosFileBrowserService
