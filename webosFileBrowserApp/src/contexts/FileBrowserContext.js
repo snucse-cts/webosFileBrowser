@@ -290,48 +290,31 @@ export function FileBrowserProvider({ children, testMode = false }) {
     },
     [users]
   );
-  const renameFile = useCallback((oldpath, newpath) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const parts = oldpath.split("/").filter((part) => part !== "");
-        const newParts = newpath.split("/").filter((part) => part !== "");
 
-        let current = mockFileSystem["/"];
-        for (const part of parts.slice(0, -1)) {
-          if (!current.children || !current.children[part]) {
-            reject({ message: "Path not found" });
-            return;
-          }
-          current = current.children[part];
-        }
+  const renameFile = useCallback(
+    (oldpath, newpath) => {
+      if (!oldpath || !newpath) {
+        console.error("Invalid paths provided for rename operation:", {
+          oldpath,
+          newpath,
+        });
+        return Promise.reject(new Error("Invalid paths for rename operation"));
+      }
 
-        const oldName = parts[parts.length - 1];
-        const targetItem = current.children?.[oldName];
-        if (!targetItem) {
-          reject({ message: "File or directory not found" });
-          return;
-        }
+      console.log("Calling renameFile with paths:", { oldpath, newpath });
 
-        // Remove the old name
-        delete current.children[oldName];
-
-        // Add with new name
-        const newParentPath = newParts.slice(0, -1);
-        let newParent = mockFileSystem["/"];
-        for (const part of newParentPath) {
-          if (!newParent.children[part]) {
-            newParent.children[part] = { type: "directory", children: {} };
-          }
-          newParent = newParent.children[part];
-        }
-
-        const newName = newParts[newParts.length - 1];
-        newParent.children[newName] = targetItem;
-
-        resolve({ success: true });
-      }, 100);
-    });
-  }, []);
+      return callService("renameFile", { oldpath, newpath })
+        .then((response) => {
+          console.log("RenameFile succeeded:", response);
+          return response;
+        })
+        .catch((err) => {
+          console.error("RenameFile failed:", err);
+          throw err;
+        });
+    },
+    [callService]
+  );
 
   const navigateTo = useCallback(
     (path) => {
