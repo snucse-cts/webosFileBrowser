@@ -13,7 +13,7 @@ const Modal = ({ title, children, onClose }) => (
     </div>
 );
 
-const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop }) => {
+const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop, onMove }) => {
     const icon = type === 'directory' ? '📁' : '📄';
     
     const handleDragStart = (e) => {
@@ -57,6 +57,15 @@ const FileItem = ({ name, type, size, onSelect, onDelete, onRename, onDrop }) =>
                 {type === 'file' && <span className="text-sm text-gray-500">{size} bytes</span>}
             </div>
             <div className="opacity-0 group-hover:opacity-100 flex space-x-2">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onMove(name, type);
+                    }}
+                    className="px-2 py-1 text-green-500 hover:bg-green-50 rounded"
+                >
+                    Move
+                </button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
@@ -135,6 +144,10 @@ const FileBrowser = () => {
     const [renameError, setRenameError] = useState('');
     const [createDirError, setCreateDirError] = useState('');
     const [createFileError, setCreateFileError] = useState('');
+    const [showMoveModal, setShowMoveModal] = useState(false);
+    const [moveItem, setMoveItem] = useState(null);
+    const [moveTarget, setMoveTarget] = useState('');
+    const [moveError, setMoveError] = useState('');
 
     const loadFiles = useCallback(async () => {
         try {
@@ -245,7 +258,7 @@ const FileBrowser = () => {
     };
 
     const handleDelete = async (name, type) => {
-        if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
+        // if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
 
         try {
             const path = `${currentPath === '/' ? '' : currentPath}/${name}`;
@@ -316,6 +329,36 @@ const FileBrowser = () => {
             loadFiles();
         } catch (err) {
             setError(err.error?.message || 'Failed to move item');
+        }
+    };
+
+    const handleMove = (name, type) => {
+        setMoveItem({ name, type });
+        setMoveTarget('');
+        setMoveError('');
+        setShowMoveModal(true);
+    };
+
+    const handleMoveSubmit = async () => {
+        setMoveError('');
+
+        if (!moveTarget.trim()) {
+            setMoveError('Target path cannot be empty');
+            return;
+        }
+
+        // Normalize paths
+        const sourcePath = `${currentPath === '/' ? '' : currentPath}/${moveItem.name}`;
+        const targetPath = `${moveTarget === '/' ? '' : moveTarget}/${moveItem.name}`;
+
+        try {
+            await renameFile(sourcePath, targetPath);
+            setShowMoveModal(false);
+            setMoveItem(null);
+            setMoveTarget('');
+            loadFiles();
+        } catch (err) {
+            setMoveError(err.error?.message || 'Failed to move item');
         }
     };
 
@@ -418,6 +461,7 @@ const FileBrowser = () => {
                             onDelete={loading ? undefined : handleDelete}
                             onRename={loading ? undefined : handleRename}
                             onDrop={loading ? undefined : handleDrop}
+                            onMove={loading ? undefined : handleMove}
                         />
                     ))
                 )}
@@ -563,6 +607,46 @@ const FileBrowser = () => {
                             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                         >
                             Rename
+                        </button>
+                    </div>
+                </Modal>
+            )}
+
+            {showMoveModal && (
+                <Modal
+                    title={`Move ${moveItem?.type === 'directory' ? 'Folder' : 'File'}: ${moveItem?.name}`}
+                    onClose={() => setShowMoveModal(false)}
+                >
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Target Directory Path
+                        </label>
+                        <input
+                            type="text"
+                            value={moveTarget}
+                            onChange={(e) => setMoveTarget(e.target.value)}
+                            placeholder="/path/to/target/directory"
+                            className="w-full p-2 border rounded mb-2"
+                        />
+                        <p className="text-sm text-gray-500">
+                            Enter the full path where you want to move this {moveItem?.type}
+                        </p>
+                    </div>
+                    {moveError && (
+                        <div className="text-red-500 text-sm mb-4">{moveError}</div>
+                    )}
+                    <div className="flex justify-end space-x-2">
+                        <button
+                            onClick={() => setShowMoveModal(false)}
+                            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleMoveSubmit}
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        >
+                            Move
                         </button>
                     </div>
                 </Modal>

@@ -9,7 +9,7 @@ const App = kind({
 	name: 'App',
 	render: function (props) {
 		return (
-			<FileBrowserProvider testMode={true}>
+			<FileBrowserProvider testMode={false}>
 				<AuthenticatedApp />
 			</FileBrowserProvider>
 		);
