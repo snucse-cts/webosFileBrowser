@@ -5,27 +5,27 @@ A file browser app for webOS, built with Enact, that provides a user-friendly in
 ---
 
 ## Table of Contents
-1. [Description](#description)
-2. [Getting Started](#getting-started)
-   - [Prerequisites](#prerequisites)
-   - [Installing](#installing)
-3. [Usage](#usage)
-   - [Features](#features)
-   - [Example Screenshots](#example-screenshots)
-4. [Documentation](#documentation)
-   - [Frontend Documentation](#frontend-documentation)
-   - [Backend Documentation](#backend-documentation)
-   - [Additional Resources](#additional-resources)
-5. [Demo](#demo)
-6. [Built With](#built-with)
-7. [Contributing](#contributing)
-   - [Code of Conduct](#code-of-conduct)
-   - [How to Contribute](#how-to-contribute)
-8. [Versioning](#versioning)
-9. [Contributors](#contributors)
-10. [License](#license)
-11. [Acknowledgments](#acknowledgments)
-12. [Issue Reporting and Feature Requests](#issue-reporting-and-feature-requests)
+1. [Description](#description) - Overview of the project and its purpose
+2. [Getting Started](#getting-started) - Steps to set up and run the project
+   - [Prerequisites](#prerequisites) - Required software and system dependencies
+   - [Installing](#installing) – Instructions for downloading, installing, and setting up the project
+3. [Usage](#usage) – How to use the application and its key feature
+   - [Features](#features) – List of functionalities provided by the application
+   - [Example Screenshots](#example-screenshots) – Visual examples of the UI and functionality
+4. [Documentation](#documentation) – Additional resources and references for development
+   - [Frontend Documentation](#frontend-documentation) – Details on frontend development and structure
+   - [Backend Documentation](#backend-documentation) – Information about backend architecture and APIs
+   - [Additional Resources](#additional-resources) – Links to coding style, testing guides, and changelogs
+5. [Demo](#demo) – A preview of the app’s functionality in action
+6. [Built With](#built-with) – Technologies and frameworks used in the project
+7. [Contributing](#contributing) – Guidelines for contributing to the project
+   - [Code of Conduct](#code-of-conduct) – Rules and expectations for contributors
+   - [How to Contribute](#how-to-contribute) – Steps for submitting contributions
+8. [Versioning](#versioning) – Information about version control and releases
+9. [Contributors](#contributors) – List of project contributors and their roles
+10. [License](#license) – Licensing details for the project
+11. [Acknowledgments](#acknowledgments) – Special mentions and credits
+12. [Issue Reporting and Feature Requests](#issue-reporting-and-feature-requests) – How to report bugs and request new features
 
 ---
 
