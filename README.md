@@ -43,11 +43,26 @@ Follow these instructions to set up and run the project on your local machine fo
 
 ### Prerequisites
 
-Ensure you have the following tools installed:
+Ensure you have the following tools installed to the lastest version:
 
 - **Node.js** and **npm** for building and running the frontend.
-- **webOS SDK tools** (e.g., `ares-install`, `ares-package`) for deploying the app.
+- **webOS SDK tools** (e.g., `ares-install`, `ares-package`) for deploying the app. Check your installed version with:
+  ```bash
+  ares --version
+  ```
+- **Enact framework** for UI development. Verify the installed version with:
+  ```bash
+  npm list enact
+  ```
 - A **webOS device** for testing.
+- Specify the **Host PC** the guide applies to:
+  - The application itself is **not compatible with macOS**, but a demo version is available for testing.
+  - Development can be done on **Windows and Linux**.
+- The **webos-dev-tools** method previously used is now outdated. Instead, install the CLI tool from the webOS SDK using the following command:
+  
+  ```bash
+  npm install -g @webos-tools/cli
+  ```
 
 Example installation:
 
@@ -55,9 +70,6 @@ Example installation:
 # Install Node.js and npm
 sudo apt update
 sudo apt install nodejs npm
-
-# Install webOS SDK tools
-sudo apt install webos-dev-tools
 ```
 
 ### Installing
@@ -68,19 +80,29 @@ sudo apt install webos-dev-tools
    cd webosFileBrowser
    ```
 
-2. Install dependencies:
+2. Navigate to the correct directory and install dependencies:
    ```bash
+   cd webosFileBrowserApp
    npm install
    ```
 
-3. Build the application:
+3. Ensure Enact is installed for successful packaging:
+   ```bash
+   npm install -g @enact/cli
+   ```
+
+4. Build the application:
    ```bash
    npm run pack
    ```
 
-4. Deploy the app to a webOS device:
+5. Package the application along with the service:
    ```bash
-   ares-package dist
+   ares-package ./dist/ ../webosFileBrowserService/
+   ```
+
+6. Deploy the app to a webOS device:
+   ```bash
    ares-install --device <device_name> ./io.webosfilebrowser_1.0.0_all.ipk
    ```
 
